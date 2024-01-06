@@ -9,15 +9,18 @@ import {
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
 const EnterGameScreen = () => {
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
   const [gameTitle, setGameTitle] = useState<string>();
+  const navigation = useNavigation();
 
   const selectGame = (value: string) => () => {
     setGameTitle(value);
     setGameSelectModalVisible(false);
+    navigation.navigate('WaitGame', { gameTitle: value });
   };
 
   return (

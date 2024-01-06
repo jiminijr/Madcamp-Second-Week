@@ -6,12 +6,12 @@ import LoginScreen from './src/screens/LoginScreen';
 import GameStackNavigator from './src/navigators/GameStackNavigator';
 
 function App(): JSX.Element {
-  const [showSplash, setShwoSplash] = useState<boolean>(true);
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLogin, setIsLogin] = useState<boolean>(false);
 
   useEffect(() => {
     setTimeout(() => {
-      setShwoSplash(false);
+      setShowSplash(false);
     }, 2000);
   });
 
