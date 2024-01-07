@@ -18,7 +18,7 @@ const WaitGameScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('GameLobby', { gameTitle: gameTitle }); // GameLobbyScreen으로 이동
+      navigation.replace('GameLobby', { gameTitle: gameTitle }); // GameLobbyScreen으로 이동
     }, 2000);
 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
