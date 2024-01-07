@@ -1,18 +1,24 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import EnterGameScreen from '../screens/EnterGameScreen';
 import WaitGameScreen from '../screens/WaitGameScreen';
 import GameLobbyScreen from '../screens/GameLobbyScreen';
 
 export type GameStackParamList = {
-  EnterGame: undefined;
+  EnterGame: { profile: string, token: string};
   WaitGame: { gameTitle: string };
+  GameLobby: undefined;
 };
+
+type Props = {
+  token: string;
+  profile: string;
+}
 
 const Stack = createStackNavigator<GameStackParamList>();
 
-const GameStackNavigator = () => {
+const GameStackNavigator:FC<Props> = ({token, profile}) => {
   const [isWaitGameScreen, setShowWaitGame] = useState<boolean>(true);
 
   useEffect(() => {
@@ -27,6 +33,7 @@ const GameStackNavigator = () => {
         name="EnterGame"
         component={EnterGameScreen}
         options={{headerShown: false}}
+        initialParams={{profile: profile, token: token}}
       />
       <Stack.Screen
         name="WaitGame"

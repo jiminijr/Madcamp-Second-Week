@@ -1,4 +1,4 @@
-import {FC} from 'react';
+import React, { FC, useState } from 'react';
 import {
   ImageBackground,
   View,
@@ -6,18 +6,30 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  TextInput,
-  KeyboardAvoidingView,
 } from 'react-native';
-
+import { getProfile, login as kakaoLogin } from '@react-native-seoul/kakao-login';
+import { useNavigation } from '@react-navigation/native';
+ 
 type Props = {
-  isLogin: boolean;
   setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
+  setProfile: React.Dispatch<React.SetStateAction<string>>;
+  setToken: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const LoginScreen: FC<Props> = ({isLogin, setIsLogin}) => {
-  const login = () => {
-    setIsLogin(true);
+const LoginScreen: FC<Props> = ({ setIsLogin, setProfile, setToken }) => {
+  const navigation = useNavigation(); // 네비게이션 훅 사용
+
+  const login = async () => {
+    try {
+      const token = await kakaoLogin();
+      const profile = await getProfile();
+      setToken(JSON.stringify(token));
+      setProfile(JSON.stringify(profile)); // 프로필 정보 저장
+      setIsLogin(true)
+      // navigation.navigate('EnterGame', { profile:profile }); // 프로필 정보를 파라미터로 전달
+    } catch (err) {
+      console.error('Kakao Login Error', err);
+    }
   };
 
   return (
@@ -42,7 +54,6 @@ const LoginScreen: FC<Props> = ({isLogin, setIsLogin}) => {
     </ImageBackground>
   );
 };
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -83,3 +94,5 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
+

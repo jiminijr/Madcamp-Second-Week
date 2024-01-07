@@ -8,6 +8,8 @@ import GameStackNavigator from './src/navigators/GameStackNavigator';
 function App(): JSX.Element {
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [token, setToken] = useState<string>('');
+  const [profile, setProfile] = useState<string>('');
 
   useEffect(() => {
     setTimeout(() => {
@@ -20,9 +22,9 @@ function App(): JSX.Element {
       {showSplash ? (
         <SplashScreen />
       ) : !isLogin ? (
-        <LoginScreen isLogin={isLogin} setIsLogin={setIsLogin} />
+        <LoginScreen setIsLogin={setIsLogin} setProfile={setProfile} setToken={setToken} />
       ) : (
-        <GameStackNavigator />
+        <GameStackNavigator token={token} profile={profile}/>
       )}
     </NavigationContainer>
   );

@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useNavigation, StackNavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../navigators/GameStackNavigator';
+import { GameStackParamList,  } from '../navigators/GameStackNavigator';
+import { StackScreenProps } from '@react-navigation/stack';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
 
-type Props = {
-  route: RouteProp<RootStackParamList, 'WaitGame'>;
-};
+type Props = StackScreenProps<GameStackParamList, 'WaitGame'>
 
-const WaitGameScreen = ({ route }: Props) => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+const WaitGameScreen = () => {
+  const navigation = useNavigation<Props['navigation']>();
+  const route = useRoute<Props['route']>();
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,8 +22,10 @@ const WaitGameScreen = ({ route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>게임 준비 중...</Text>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <FastImage
+        source={require('../../assets/images/game_lobby.gif')}
+        style={styles.gifImage}
+      />
     </View>
   );
 };
@@ -30,6 +34,7 @@ const WaitGameScreen = ({ route }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffd400',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -44,7 +49,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  // 추가 스타일링
+  gifImage: {
+    width: 300,
+    height: 300,
+  },
 });
 
 export default WaitGameScreen;

@@ -9,13 +9,22 @@ import {
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { GameStackParamList } from '../navigators/GameStackNavigator';
+
+type Props = StackScreenProps<GameStackParamList, 'EnterGame'>
 
 const EnterGameScreen = () => {
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
   const [gameTitle, setGameTitle] = useState<string>();
-  const navigation = useNavigation();
+
+  const navigation = useNavigation<Props['navigation']>();
+  const route = useRoute<Props['route']>();
+
+  const profile = JSON.parse(route.params.profile);
+  console.log(profile)
 
   const selectGame = (value: string) => () => {
     setGameTitle(value);
@@ -46,10 +55,13 @@ const EnterGameScreen = () => {
             />
           </TouchableOpacity>
         </View>
-        <Image
+        <ImageBackground
           source={require('../../assets/images/profile.png')}
           style={styles.profile}
-        />
+        >
+          <Image source={{ uri: profile.thumbnailImageUrl }} style={styles.thumbnail} />
+          <Text style={styles.name}>{profile.nickname}</Text>
+        </ImageBackground>
       </View>
       <Modal
         visible={gameSelectModalVisible}
@@ -147,6 +159,34 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard',
     fontSize: 30,
     fontWeight: '900',
+  },
+  profileInfoContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -100 }, { translateY: -115 }],
+    alignItems: 'center',
+  },
+  thumbnail: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 90,
+    height: 120,
+    transform: [{ translateX: -45 }, { translateY: -105 }],
+    borderRadius: 50,
+  },
+  name: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 80,
+    transform: [{ translateX: -40 }, { translateY: 45 }],
+    fontSize: 20,
+    color: 'black',
+    marginTop: 5,
+    textAlign:'center',
+    fontWeight: '900'
   },
 });
 
