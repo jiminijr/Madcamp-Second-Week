@@ -30,6 +30,8 @@ const EnterGameScreen = () => {
     setGameTitle(value);
     setGameSelectModalVisible(false);
     navigation.navigate('WaitGame', { gameTitle: value });
+    console.log(profile, '엔터게임')
+    console.log(value)
   };
 
   return (
@@ -76,7 +78,7 @@ const EnterGameScreen = () => {
         />
         <View style={styles.selectorContainer}>
           <Pressable
-            onPress={selectGame('Game1')}
+            onPress={selectGame('4글자')}
             style={{
               ...styles.selectorBtn,
               borderBottomWidth: 0.5,
@@ -85,7 +87,7 @@ const EnterGameScreen = () => {
             <Text style={styles.selectorText}>4글자</Text>
           </Pressable>
           <Pressable
-            onPress={selectGame('Game2')}
+            onPress={selectGame('속담')}
             style={{
               ...styles.selectorBtn,
               borderBottomWidth: 0.5,
@@ -94,7 +96,7 @@ const EnterGameScreen = () => {
             <Text style={styles.selectorText}>속담</Text>
           </Pressable>
           <Pressable
-            onPress={selectGame('Game3')}
+            onPress={selectGame('인물')}
             style={{
               ...styles.selectorBtn,
               borderBottomWidth: 0.5,
@@ -102,7 +104,7 @@ const EnterGameScreen = () => {
             }}>
             <Text style={styles.selectorText}>인물</Text>
           </Pressable>
-          <Pressable onPress={selectGame('Game4')} style={styles.selectorBtn}>
+          <Pressable onPress={selectGame('영화')} style={styles.selectorBtn}>
             <Text style={styles.selectorText}>영화</Text>
           </Pressable>
         </View>

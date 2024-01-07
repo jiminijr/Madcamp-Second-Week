@@ -1,9 +1,31 @@
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ImageBackground, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import { GameStackParamList } from '../navigators/GameStackNavigator';
 
-const GameLobbyScreen = () => {
-  const [users, setUsers] = useState([]);
+type Props = StackScreenProps<GameStackParamList, 'GameLobby'>
+
+
+  const GameLobbyScreen = () => {
+
+  const navigation = useNavigation<Props['navigation']>();
+  const route = useRoute<Props['route']>();
+  const initialGameTitle = route.params?.gameTitle;
+  const profile = JSON.parse(route.params.profile);
+    const [users, setUsers] = useState([]);
+    const [gameSelectModalVisible, setGameSelectModalVisible] =
+      useState<boolean>(false);
+    const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
+  
+  const selectGame = (value: string) => () => {
+    setGameTitle(value);
+    setGameSelectModalVisible(false);
+    navigation.navigate('GameLobby', { gameTitle: value });
+    console.log(profile, '게임로비')
+    console.log(value)
+  };
 
   useEffect(() => {
     // 서버에서 사용자 목록을 가져오는 로직 구현
@@ -20,8 +42,8 @@ const GameLobbyScreen = () => {
   }, []);
 
   return (
-    <ImageBackground 
-      source={require('../../assets/images/background.png')} // 배경 이미지 URL
+    <ImageBackground
+      source={require('../../assets/images/background.png')}
       style={styles.backgroundImage}
     >
       <FlatList
@@ -29,26 +51,74 @@ const GameLobbyScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Text style={styles.text}>{item.name}</Text>}
       />
-    <FastImage
-        source={require('../../assets/images/game_lobby.gif')}
+      <Text style={styles.text}>현재 게임</Text>
+      <Text style={styles.text}>{gameTitle}</Text>
+      <FastImage
+        source={require('../../assets/images/guitar.gif')}
         style={styles.gifImage}
       />
 
       <TouchableOpacity onPress={() => {/* 게임 시작 로직 */}}>
         <Image
-          source={require('../../assets/images/gamestart.png')} // 버튼 이미지 URL
+          source={require('../../assets/images/gamestart.png')}
           style={styles.buttonImage}
         />
       </TouchableOpacity>
-      <Text style={styles.buttonText}>게임 시작</Text> 
+      <Text style={styles.buttonText}>게임 시작</Text>
 
-      <TouchableOpacity onPress={() => {/* 게임 변경 로직 */}}>
-        <Image
-          source={require('../../assets/images/gamechange.png')} // 다른 버튼 이미지 URL
+      <TouchableOpacity onPress={() => { setGameSelectModalVisible(true); }}>
+      <Image
+          source={require('../../assets/images/gamechange.png')}
           style={styles.buttonImage}
         />
+        <Text style={styles.buttonText}>게임 변경</Text>
       </TouchableOpacity>
-      <Text style={styles.buttonText}>게임 변경</Text> 
+
+      <Modal
+        visible={gameSelectModalVisible}
+        onRequestClose={() => {
+          setGameSelectModalVisible(false);
+        }}
+        animationType="fade"
+        transparent={true}
+      >
+        <Pressable
+          style={styles.modalOutside}
+          onPress={() => setGameSelectModalVisible(false)}
+        />
+        <View style={styles.selectorContainer}>
+        <Pressable
+            onPress={selectGame('4글자')}
+            style={{
+              ...styles.selectorBtn,
+              borderBottomWidth: 0.5,
+              borderColor: 'white',
+            }}>
+            <Text style={styles.selectorText}>4글자</Text>
+          </Pressable>
+          <Pressable
+            onPress={selectGame('속담')}
+            style={{
+              ...styles.selectorBtn,
+              borderBottomWidth: 0.5,
+              borderColor: 'white',
+            }}>
+            <Text style={styles.selectorText}>속담</Text>
+          </Pressable>
+          <Pressable
+            onPress={selectGame('인물')}
+            style={{
+              ...styles.selectorBtn,
+              borderBottomWidth: 0.5,
+              borderColor: 'white',
+            }}>
+            <Text style={styles.selectorText}>인물</Text>
+          </Pressable>
+          <Pressable onPress={selectGame('영화')} style={styles.selectorBtn}>
+            <Text style={styles.selectorText}>영화</Text>
+          </Pressable>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -77,7 +147,32 @@ const styles = StyleSheet.create({
     height: 50,
     margin: 10,
   },
-  // 추가 스타일링이 필요한 경우 여기에 추가
+  modalOutside: {
+    flex: 1,
+    backgroundColor: 'rgba(97, 97, 97, 0.70)',
+  },
+  selectorContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 300,
+    height: 400,
+    transform: [{translateX: -150}, {translateY: -200}],
+    backgroundColor: 'black',
+    borderRadius: 12,
+  },
+  selectorBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  selectorText: {
+    color: 'white',
+    fontFamily: 'Pretendard',
+    fontSize: 30,
+    fontWeight: '900',
+  },
 });
 
 export default GameLobbyScreen;

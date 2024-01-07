@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { GameStackParamList,  } from '../navigators/GameStackNavigator';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -10,16 +10,21 @@ type Props = StackScreenProps<GameStackParamList, 'WaitGame'>
 const WaitGameScreen = () => {
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
-  
+
+  const profile = JSON.parse(route.params.profile);
+  const gameTitle = route.params?.gameTitle;
+    console.log(profile, '웨잇게임')
+    console.log(gameTitle)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('GameLobby'); // GameLobbyScreen으로 이동
+      navigation.navigate('GameLobby', { gameTitle: gameTitle }); // GameLobbyScreen으로 이동
     }, 2000);
 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
-  }, [navigation]);
+  }, [gameTitle, navigation]);
 
+  
   return (
     <View style={styles.container}>
       <FastImage
