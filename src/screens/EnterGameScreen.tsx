@@ -10,36 +10,35 @@ import {
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { StackScreenProps } from '@react-navigation/stack';
-import { GameStackParamList } from '../navigators/GameStackNavigator';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {GameStackParamList} from '../navigators/GameStackNavigator';
 import FastImage from 'react-native-fast-image';
 
-type Props = StackScreenProps<GameStackParamList, 'EnterGame'>
+type Props = StackScreenProps<GameStackParamList, 'EnterGame'>;
 
 const EnterGameScreen = () => {
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
-    const [CodeInputVisible, setCodeInputModalVisible] =
-    useState<boolean>(false);
-    const [enteredCode, setEnteredCode] = useState('');
+  const [CodeInputVisible, setCodeInputModalVisible] = useState<boolean>(false);
+  const [enteredCode, setEnteredCode] = useState('');
   const [gameTitle, setGameTitle] = useState<string>();
 
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
 
   const profile = JSON.parse(route.params.profile);
-  console.log(profile)
+  console.log(profile);
 
   const selectGame = (value: string) => () => {
     const code = generateRandomCode(); // 랜덤 코드 생성
     setGameTitle(value);
     setGameSelectModalVisible(false);
     setCodeInputModalVisible(false);
-    navigation.navigate('WaitGame', { gameTitle: value, inviteCode: code  });
-    console.log(profile, '엔터게임')
-    console.log(value)
-    console.log('Generated Invite Code:', code); 
+    navigation.navigate('WaitGame', {gameTitle: value, inviteCode: code});
+    console.log(profile, '엔터게임');
+    console.log(value);
+    console.log('Generated Invite Code:', code);
   };
 
   const handleCodeSubmit = () => {
@@ -57,7 +56,6 @@ const EnterGameScreen = () => {
     return code;
   };
 
-  
   return (
     <ImageBackground
       source={require('../../assets/images/background.png')}
@@ -75,7 +73,7 @@ const EnterGameScreen = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity
-          onPress={() => {
+            onPress={() => {
               setCodeInputModalVisible(true);
             }}>
             <Image
@@ -86,9 +84,11 @@ const EnterGameScreen = () => {
         </View>
         <ImageBackground
           source={require('../../assets/images/profile.png')}
-          style={styles.profile}
-        >
-          <Image source={{ uri: profile.thumbnailImageUrl }} style={styles.thumbnail} />
+          style={styles.profile}>
+          <Image
+            source={{uri: profile.thumbnailImageUrl}}
+            style={styles.thumbnail}
+          />
           <Text style={styles.name}>{profile.nickname}</Text>
         </ImageBackground>
       </View>
@@ -147,11 +147,11 @@ const EnterGameScreen = () => {
           style={styles.modalOutside}
           onPress={() => setCodeInputModalVisible(false)}
         />
-         <View style={styles.modalContainer}>
-            <FastImage
+        <View style={styles.modalContainer}>
+          <FastImage
             source={require('../../assets/images/enter_game.gif')}
             style={styles.gifImage}
-            />
+          />
           <TextInput
             style={styles.codeInput}
             onChangeText={setEnteredCode}
@@ -159,7 +159,9 @@ const EnterGameScreen = () => {
             placeholder="코드를 입력하세요."
             keyboardType="default"
           />
-          <TouchableOpacity onPress={handleCodeSubmit} style={styles.submitButton}>
+          <TouchableOpacity
+            onPress={handleCodeSubmit}
+            style={styles.submitButton}>
             <Text style={styles.submitButtonText}>확인</Text>
           </TouchableOpacity>
         </View>
@@ -210,23 +212,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    
   },
   selectorText: {
     color: 'black',
     fontFamily: 'baemin',
-    fontSize: 30
+    fontSize: 30,
   },
   divider: {
-    height: 1, 
-    backgroundColor: 'black', 
+    height: 1,
+    backgroundColor: 'black',
   },
-  
+
   profileInfoContainer: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -100 }, { translateY: -115 }],
+    transform: [{translateX: -100}, {translateY: -115}],
     alignItems: 'center',
   },
   thumbnail: {
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     left: '50%',
     width: 90,
     height: 120,
-    transform: [{ translateX: -45 }, { translateY: -105 }],
+    transform: [{translateX: -45}, {translateY: -105}],
     borderRadius: 50,
   },
   name: {
@@ -243,12 +244,12 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '50%',
     width: 80,
-    transform: [{ translateX: -40 }, { translateY: 45 }],
+    transform: [{translateX: -40}, {translateY: 45}],
     fontSize: 25,
     color: 'black',
     fontFamily: 'baemin',
     marginTop: 5,
-    textAlign:'center',
+    textAlign: 'center',
   },
   modalContainer: {
     position: 'absolute',
@@ -260,31 +261,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEFAE1',
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
   },
   codeInput: {
     width: '80%',
     borderBottomWidth: 2,
     fontSize: 20,
     fontFamily: 'baemin',
-    textAlign:'center',
-    padding: 10
+    textAlign: 'center',
+    padding: 10,
   },
   submitButton: {
     backgroundColor: '#FFD400',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   submitButtonText: {
     color: 'black',
     fontFamily: 'baemin',
-    fontSize: 18
+    fontSize: 18,
   },
   gifImage: {
     width: 200,
     height: 200,
-  }
+  },
 });
 
 export default EnterGameScreen;

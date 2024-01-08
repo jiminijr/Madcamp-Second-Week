@@ -30,6 +30,8 @@ const DoingGameScreen = () => {
   const problems = require('../problems/problem.json');
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
+  const [users, setUsers] = useState([]);
+  const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
 
   useEffect(() => {
     // 문제 목록 초기화
