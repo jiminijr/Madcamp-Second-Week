@@ -1,26 +1,48 @@
-import { createStackNavigator } from '@react-navigation/stack';
-import React, { FC, useEffect, useState } from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
+import React, {FC, useEffect, useState} from 'react';
 
 import EnterGameScreen from '../screens/EnterGameScreen';
 import WaitGameScreen from '../screens/WaitGameScreen';
 import GameLobbyScreen from '../screens/GameLobbyScreen';
+import DoingGameScreen from '../screens/DoingGameScreen';
 
 export type GameStackParamList = {
-  EnterGame: { profile: string, token: string, gameTitle: string, inviteCode: String };
-  WaitGame: { profile: string, token: string, gameTitle: string, inviteCode: String};
-  GameLobby: { profile: string, token: string, gameTitle: string, inviteCode: String  };
+  EnterGame: {
+    profile: string;
+    token: string;
+    gameTitle: string;
+    inviteCode: String;
+  };
+  WaitGame: {
+    profile: string;
+    token: string;
+    gameTitle: string;
+    inviteCode: String;
+  };
+  GameLobby: {
+    profile: string;
+    token: string;
+    gameTitle: string;
+    inviteCode: String;
+  };
+  DoingGame: {
+    profile: string;
+    token: string;
+    gameTitle: string;
+    inviteCode: String;
+  };
 };
 
-type Props = { 
+type Props = {
   token: string;
   profile: string;
   gameTitle: string;
   inviteCode: String;
-}
+};
 
 const Stack = createStackNavigator<GameStackParamList>();
 
-const GameStackNavigator:FC<Props> = ({token, profile}) => {
+const GameStackNavigator: FC<Props> = ({token, profile}) => {
   const [isWaitGameScreen, setShowWaitGame] = useState<boolean>(true);
 
   useEffect(() => {
@@ -49,10 +71,14 @@ const GameStackNavigator:FC<Props> = ({token, profile}) => {
         options={{headerShown: false}}
         initialParams={{profile: profile, token: token}}
       />
+      <Stack.Screen
+        name="DoingGame"
+        component={DoingGameScreen}
+        options={{headerShown: false}}
+        initialParams={{profile: profile, token: token}}
+      />
     </Stack.Navigator>
   );
 };
 
 export default GameStackNavigator;
-
-

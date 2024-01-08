@@ -32,6 +32,15 @@ const GameLobbyScreen = () => {
     useState<boolean>(false);
   const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
 
+  const playGame = () => {
+    console.log(profile, '플레이게임');
+    console.log(gameTitle);
+    navigation.replace('DoingGame', {
+      gameTitle: gameTitle,
+      inviteCode: inviteCode,
+    });
+  };
+
   const selectGame = (value: string) => () => {
     setGameTitle(value);
     setGameSelectModalVisible(false);
@@ -39,8 +48,6 @@ const GameLobbyScreen = () => {
       gameTitle: value,
       inviteCode: inviteCode,
     });
-    console.log(profile, '게임로비');
-    console.log(value);
   };
 
   useEffect(() => {
@@ -49,11 +56,6 @@ const GameLobbyScreen = () => {
       {id: '1', name: '사용자1'},
       {id: '2', name: '사용자2'},
       {id: '3', name: '사용자3'},
-      {id: '4', name: '사용자4'},
-      {id: '5', name: '사용자5'},
-      {id: '6', name: '사용자6'},
-      {id: '7', name: '사용자7'},
-      {id: '8', name: '사용자8'},
     ]);
   }, []);
 
@@ -62,28 +64,30 @@ const GameLobbyScreen = () => {
       source={require('../../assets/images/background.png')}
       style={styles.backgroundImage}
       resizeMode="stretch">
-      <View style={styles.bbaammContainer}>
-        <FastImage
-          source={require('../../assets/images/bbaamm.gif')}
-          style={styles.gifImage2}
-        />
-      </View>
-      <View style={styles.topContainer}>
-        <FastImage
-          source={require('../../assets/images/guitar.gif')}
-          style={styles.gifImage}
-        />
-        <View style={styles.userContainer}>
-          <FlatList
-            style={styles.flatList}
-            data={users}
-            keyExtractor={item => item.id}
-            contentContainerStyle={{gap: 5}}
-            renderItem={({item}) => (
-              <Text style={styles.text1}>{item.name}</Text>
-            )}
+      <View>
+        <View style={styles.bbaammContainer}>
+          <FastImage
+            source={require('../../assets/images/bbaamm.gif')}
+            style={styles.gifImage2}
           />
-          <Text style={styles.text4}> {users.length} / 10 </Text>
+        </View>
+        <View style={styles.topContainer}>
+          <FastImage
+            source={require('../../assets/images/guitar.gif')}
+            style={styles.gifImage}
+          />
+          <View style={styles.userContainer}>
+            <FlatList
+              style={styles.flatList}
+              data={users}
+              keyExtractor={item => item.id}
+              contentContainerStyle={{gap: 5}}
+              renderItem={({item}) => (
+                <Text style={styles.text1}>{item.name}</Text>
+              )}
+            />
+            <Text style={styles.text4}> {users.length} / 10 </Text>
+          </View>
         </View>
       </View>
       <View style={styles.infoContainer}>
@@ -91,11 +95,7 @@ const GameLobbyScreen = () => {
         <Text style={styles.text3}>현재 게임 : {gameTitle}</Text>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            /* 게임 시작 로직 */
-          }}
-          style={styles.button}>
+        <TouchableOpacity onPress={playGame} style={styles.button}>
           <ImageBackground
             source={require('../../assets/images/gamestart.png')}
             style={styles.buttonImage}>
@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 30,
     alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
   bbaammContainer: {
     flexDirection: 'row',
@@ -193,6 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#512207',
     padding: 10,
     borderRadius: 12,
+    height: 250,
   },
   userContainer: {
     gap: 8,
@@ -209,7 +211,6 @@ const styles = StyleSheet.create({
     color: 'white',
     backgroundColor: '#512207',
     alignItems: 'center',
-    // padding: '5%',
     textAlign: 'center',
   },
   text: {
@@ -223,8 +224,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'black',
     width: width * 0.3,
-    // top: height * 0.07,
-    // left: width * 0.67,
     alignItems: 'center',
     fontFamily: 'baemin',
     textAlign: 'center',
@@ -233,8 +232,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     width: width * 0.6,
-    // top: height * 0.1,
-    // left: width * 0.2,
     backgroundColor: 'white',
     alignItems: 'center',
     padding: '3%',
@@ -246,8 +243,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     width: width * 0.6,
-    // top: height * 0.13,
-    // left: width * 0.2,
     backgroundColor: 'white',
     alignItems: 'center',
     padding: '3%',
@@ -258,19 +253,11 @@ const styles = StyleSheet.create({
   gifImage: {
     width: 200,
     height: 270,
-    // position: 'absolute',
-    // top: height * 0.27, // 전체 높이의 30%
-    // left: width * 0.28, // 전체 너비의 25%
-    // transform: [{translateX: -100}, {translateY: -115}],
     alignItems: 'center',
   },
   gifImage2: {
     width: 150,
     height: 80,
-    // position: 'absolute',
-    // top: height * 0.17, // 전체 높이의 20%
-    // left: width * 0.8, // 전체 너비의 80%
-    // transform: [{translateX: -100}, {translateY: -115}],
     alignItems: 'center',
   },
   buttonContainer: {
@@ -278,9 +265,6 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   button: {
-    // position: 'absolute',
-    // top: height * 0.75, // 전체 높이의 52.2%
-    // left: width * 0.14, // 전체 너비의 24%
     alignItems: 'center',
     justifyContent: 'center',
   },
