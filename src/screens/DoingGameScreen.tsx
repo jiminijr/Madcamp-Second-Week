@@ -37,7 +37,7 @@ const DoingGameScreen = () => {
     // 문제 목록 초기화
     const randomproblems = problems
       .sort(() => 0.5 - Math.random())
-      .slice(0, 10);
+      .slice(0, 100);
     setSelectedProblems(randomproblems);
   }, []);
 
@@ -49,8 +49,8 @@ const DoingGameScreen = () => {
       setCurrentAnswer(selectedProblems[currentProblemIndex].answer);
       moveAnimation.setValue(0);
       Animated.timing(moveAnimation, {
-        toValue: -200, // 이동할 거리
-        duration: 9000, // 애니메이션 지속 시간
+        toValue: -270, // 이동할 거리
+        duration: 10000, // 애니메이션 지속 시간
         useNativeDriver: true,
       }).start();
       progressBarAnimation.setValue(0);
@@ -70,7 +70,7 @@ const DoingGameScreen = () => {
 
   const progressBarStyle = {
     height: 10,
-    backgroundColor: 'blue',
+    backgroundColor: 'white',
     width: progressBarAnimation.interpolate({
       inputRange: [0, 1],
       outputRange: ['100%', '0%'], // 0에서 100%로 너비 변경
