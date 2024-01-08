@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { GameStackParamList,  } from '../navigators/GameStackNavigator';
-import { StackScreenProps } from '@react-navigation/stack';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, ActivityIndicator, StyleSheet} from 'react-native';
+import {GameStackParamList} from '../navigators/GameStackNavigator';
+import {StackScreenProps} from '@react-navigation/stack';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 
-type Props = StackScreenProps<GameStackParamList, 'WaitGame'>
+type Props = StackScreenProps<GameStackParamList, 'WaitGame'>;
 
 const WaitGameScreen = () => {
   const navigation = useNavigation<Props['navigation']>();
@@ -13,18 +13,22 @@ const WaitGameScreen = () => {
 
   const profile = JSON.parse(route.params.profile);
   const gameTitle = route.params?.gameTitle;
-    console.log(profile, '웨잇게임')
-    console.log(gameTitle)
+  const inviteCode = route.params?.inviteCode;
+  console.log(profile, '웨잇게임');
+  console.log(gameTitle);
+  console.log('Received Invite Code:', inviteCode);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('GameLobby', { gameTitle: gameTitle }); // GameLobbyScreen으로 이동
+      navigation.replace('GameLobby', {
+        gameTitle: gameTitle,
+        inviteCode: inviteCode,
+      }); // GameLobbyScreen으로 이동
     }, 2000);
 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
-  }, [gameTitle, navigation]);
+  }, [gameTitle, navigation, inviteCode]);
 
-  
   return (
     <View style={styles.container}>
       <FastImage
@@ -34,7 +38,6 @@ const WaitGameScreen = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

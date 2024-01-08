@@ -6,18 +6,23 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { GameStackParamList } from '../navigators/GameStackNavigator';
+import FastImage from 'react-native-fast-image';
 
 type Props = StackScreenProps<GameStackParamList, 'EnterGame'>
 
 const EnterGameScreen = () => {
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
+    const [CodeInputVisible, setCodeInputModalVisible] =
+    useState<boolean>(false);
+    const [enteredCode, setEnteredCode] = useState('');
   const [gameTitle, setGameTitle] = useState<string>();
 
   const navigation = useNavigation<Props['navigation']>();
@@ -27,13 +32,32 @@ const EnterGameScreen = () => {
   console.log(profile)
 
   const selectGame = (value: string) => () => {
+    const code = generateRandomCode(); // 랜덤 코드 생성
     setGameTitle(value);
     setGameSelectModalVisible(false);
-    navigation.navigate('WaitGame', { gameTitle: value });
+    setCodeInputModalVisible(false);
+    navigation.navigate('WaitGame', { gameTitle: value, inviteCode: code  });
     console.log(profile, '엔터게임')
     console.log(value)
+    console.log('Generated Invite Code:', code); 
   };
 
+  const handleCodeSubmit = () => {
+    console.log('Entered Code:', enteredCode);
+    // 여기에 코드 처리 로직 추가
+    // 예: navigation.navigate('GameLobby', { enteredCode: enteredCode });
+  };
+  const generateRandomCode = () => {
+    let code = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 6; i++) {
+      code += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return code;
+  };
+
+  
   return (
     <ImageBackground
       source={require('../../assets/images/background.png')}
@@ -50,7 +74,10 @@ const EnterGameScreen = () => {
               style={styles.enterBtn}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => {
+              setCodeInputModalVisible(true);
+            }}>
             <Image
               source={require('../../assets/images/enterGame.png')}
               style={styles.enterBtn}
@@ -81,8 +108,8 @@ const EnterGameScreen = () => {
             onPress={selectGame('4글자')}
             style={{
               ...styles.selectorBtn,
-              borderBottomWidth: 0.5,
-              borderColor: 'white',
+              borderBottomWidth: 1,
+              borderColor: 'black',
             }}>
             <Text style={styles.selectorText}>4글자</Text>
           </Pressable>
@@ -90,8 +117,8 @@ const EnterGameScreen = () => {
             onPress={selectGame('속담')}
             style={{
               ...styles.selectorBtn,
-              borderBottomWidth: 0.5,
-              borderColor: 'white',
+              borderBottomWidth: 1,
+              borderColor: 'black',
             }}>
             <Text style={styles.selectorText}>속담</Text>
           </Pressable>
@@ -99,14 +126,42 @@ const EnterGameScreen = () => {
             onPress={selectGame('인물')}
             style={{
               ...styles.selectorBtn,
-              borderBottomWidth: 0.5,
-              borderColor: 'white',
+              borderBottomWidth: 1,
+              borderColor: 'black',
             }}>
             <Text style={styles.selectorText}>인물</Text>
           </Pressable>
           <Pressable onPress={selectGame('영화')} style={styles.selectorBtn}>
             <Text style={styles.selectorText}>영화</Text>
           </Pressable>
+        </View>
+      </Modal>
+      <Modal
+        visible={CodeInputVisible}
+        onRequestClose={() => {
+          setCodeInputModalVisible(false);
+        }}
+        animationType="fade"
+        transparent={true}>
+        <Pressable
+          style={styles.modalOutside}
+          onPress={() => setCodeInputModalVisible(false)}
+        />
+         <View style={styles.modalContainer}>
+            <FastImage
+            source={require('../../assets/images/enter_game.gif')}
+            style={styles.gifImage}
+            />
+          <TextInput
+            style={styles.codeInput}
+            onChangeText={setEnteredCode}
+            value={enteredCode}
+            placeholder="코드를 입력하세요."
+            keyboardType="default"
+          />
+          <TouchableOpacity onPress={handleCodeSubmit} style={styles.submitButton}>
+            <Text style={styles.submitButtonText}>확인</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     </ImageBackground>
@@ -147,7 +202,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 400,
     transform: [{translateX: -150}, {translateY: -200}],
-    backgroundColor: 'black',
+    backgroundColor: '#FEFAE1',
     borderRadius: 12,
   },
   selectorBtn: {
@@ -155,13 +210,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    
   },
   selectorText: {
-    color: 'white',
-    fontFamily: 'Pretendard',
-    fontSize: 30,
-    fontWeight: '900',
+    color: 'black',
+    fontFamily: 'baemin',
+    fontSize: 30
   },
+  divider: {
+    height: 1, 
+    backgroundColor: 'black', 
+  },
+  
   profileInfoContainer: {
     position: 'absolute',
     top: '50%',
@@ -184,12 +244,47 @@ const styles = StyleSheet.create({
     left: '50%',
     width: 80,
     transform: [{ translateX: -40 }, { translateY: 45 }],
-    fontSize: 20,
+    fontSize: 25,
     color: 'black',
+    fontFamily: 'baemin',
     marginTop: 5,
     textAlign:'center',
-    fontWeight: '900'
   },
+  modalContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 300,
+    height: 400,
+    transform: [{translateX: -150}, {translateY: -200}],
+    backgroundColor: '#FEFAE1',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'space-around'
+  },
+  codeInput: {
+    width: '80%',
+    borderBottomWidth: 2,
+    fontSize: 20,
+    fontFamily: 'baemin',
+    textAlign:'center',
+    padding: 10
+  },
+  submitButton: {
+    backgroundColor: '#FFD400',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10
+  },
+  submitButtonText: {
+    color: 'black',
+    fontFamily: 'baemin',
+    fontSize: 18
+  },
+  gifImage: {
+    width: 200,
+    height: 200,
+  }
 });
 
 export default EnterGameScreen;

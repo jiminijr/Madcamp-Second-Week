@@ -6,15 +6,16 @@ import WaitGameScreen from '../screens/WaitGameScreen';
 import GameLobbyScreen from '../screens/GameLobbyScreen';
 
 export type GameStackParamList = {
-  EnterGame: { profile: string, token: string, gameTitle: string };
-  WaitGame: { profile: string, token: string, gameTitle: string };
-  GameLobby: { profile: string, token: string, gameTitle: string  };
+  EnterGame: { profile: string, token: string, gameTitle: string, inviteCode: String };
+  WaitGame: { profile: string, token: string, gameTitle: string, inviteCode: String};
+  GameLobby: { profile: string, token: string, gameTitle: string, inviteCode: String  };
 };
 
 type Props = { 
   token: string;
   profile: string;
   gameTitle: string;
+  inviteCode: String;
 }
 
 const Stack = createStackNavigator<GameStackParamList>();
