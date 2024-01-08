@@ -35,7 +35,12 @@ const EnterGameScreen = () => {
     setGameTitle(value);
     setGameSelectModalVisible(false);
     setCodeInputModalVisible(false);
-    navigation.navigate('WaitGame', {gameTitle: value, inviteCode: code});
+    navigation.navigate('WaitGame', {
+      profile: profile,
+      token: route.params.token,
+      gameTitle: value,
+      inviteCode: code,
+    });
     console.log(profile, '엔터게임');
     console.log(value);
     console.log('Generated Invite Code:', code);
