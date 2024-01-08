@@ -36,6 +36,8 @@ const GameLobbyScreen = () => {
     console.log(profile, '플레이게임');
     console.log(gameTitle);
     navigation.replace('DoingGame', {
+      profile: profile,
+      token: route.params.token,
       gameTitle: gameTitle,
       inviteCode: inviteCode,
     });
@@ -45,6 +47,8 @@ const GameLobbyScreen = () => {
     setGameTitle(value);
     setGameSelectModalVisible(false);
     navigation.navigate('GameLobby', {
+      profile: profile,
+      token: route.params.token,
       gameTitle: value,
       inviteCode: inviteCode,
     });

@@ -21,6 +21,8 @@ const WaitGameScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace('GameLobby', {
+        profile: profile,
+        token: route.params.token,
         gameTitle: gameTitle,
         inviteCode: inviteCode,
       }); // GameLobbyScreen으로 이동

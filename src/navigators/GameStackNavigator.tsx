@@ -37,8 +37,6 @@ export type GameStackParamList = {
 type Props = {
   token: string;
   profile: Profile;
-  gameTitle: string;
-  inviteCode: String;
 };
 
 const Stack = createStackNavigator<GameStackParamList>();
