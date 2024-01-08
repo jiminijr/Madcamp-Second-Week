@@ -1,42 +1,86 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, ScrollView, Image, StyleSheet, Text, Animated } from 'react-native';
-import problems from '../problems/problem.json';
 
 const DoingGameScreen = () => {
   const [chat, setChat] = useState('');
   const [messages, setMessages] = useState([]);
-  const [gameStart, setGameStart] = useState(true);
-  const [correct, setCorrect] = useState(true);
+  const [correct, setCorrect] = useState(false);
   const [tensec, settensec] = useState(false);
   const moveAnimation = useRef(new Animated.Value(0)).current; // 애니메이션 state
+  const progressBarAnimation = useRef(new Animated.Value(0)).current;
   const [currentProblem, setCurrentProblem] = useState('');
+  const [currentAnswer, setCurrentAnswer] = useState('');
+  const problems = require('../problems/problem.json');
+  const [selectedProblems, setSelectedProblems] =  useState([]);
+  const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   
 
-  const handleSendMessage = () => {
-    if (chat.trim()) {
-      setMessages([...messages, chat]);
-      setChat(''); // 입력 필드 초기화
-    }
-  };
-  
   useEffect(() => {
-    if (gameStart) {
-      // gameStart가 true일 때 애니메이션 시작
+    // 문제 목록 초기화
+    const randomproblems = problems.sort(() => 0.5 - Math.random()).slice(0, 10);
+    setSelectedProblems(randomproblems);
+  }, []); 
+
+  useEffect(() => {
+    if (currentProblemIndex < selectedProblems.length){
+      console.log({selectedProblems});
+      console.log({currentProblemIndex});
+      setCurrentProblem(selectedProblems[currentProblemIndex].problem);
+      setCurrentAnswer(selectedProblems[currentProblemIndex].answer);
+      moveAnimation.setValue(0);
       Animated.timing(
         moveAnimation,
         {
           toValue: -200, // 이동할 거리
-          duration: 10000, // 애니메이션 지속 시간
+          duration: 9000, // 애니메이션 지속 시간
           useNativeDriver: true,
         }
       ).start();
-    } else {
-      // gameStart가 false일 때 애니메이션 중단
-      moveAnimation.stopAnimation();
-      moveAnimation.setValue(0); // 애니메이션 초기 위치로 재설정
-    }
-  }, [gameStart, moveAnimation]);
+        progressBarAnimation.setValue(0);
+      Animated.timing(
+        progressBarAnimation,
+        {
+          toValue: 1, // 최대값 1로 설정
+          duration: 9000, // 9초 동안 애니메이션 진행
+          useNativeDriver: false, // 레이아웃 애니메이션을 위해 false로 설정
+        }
+      ).start();
 
+      const timeout = setTimeout(() => {
+        setCurrentProblemIndex(currentProblemIndex + 1);
+        settensec(true);
+        ;
+      }, 10000);
+      return () => clearTimeout(timeout); // 컴포넌트 언마운트 시 타이머 정리
+    }
+    
+  }, [currentProblemIndex, selectedProblems]);
+  
+  const progressBarStyle = {
+    height: 10,
+    backgroundColor: 'blue',
+    width: progressBarAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['100%', '0%'] // 0에서 100%로 너비 변경
+    })
+  };
+
+  const handleSendMessage = () => {
+    if (chat.trim()) {
+      setMessages([...messages, chat]);
+  
+      // 현재 문제의 정답과 사용자 입력이 일치하는지 검사
+      if (chat.trim() === currentAnswer) {
+        // 정답인 경우 다음 문제로 넘어감
+        setCorrect(true);
+        moveAnimation.setValue(0);
+        setCurrentProblemIndex(currentProblemIndex + 1);
+      }
+      setChat(''); // 입력 필드 초기화
+    }
+  };
+  
+  
   useEffect(() => {
     if (correct) {
       setTimeout(() => {
@@ -51,18 +95,17 @@ const DoingGameScreen = () => {
         settensec(false);
       }, 1000); // 1초 후에 correct를 false로 설정
     }
-  }, [correct]);
+  }, [tensec]);
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.animatedContainer, { transform: [{ translateX: moveAnimation }] }]}>
-        {/* gameStart 상태에 따라 이미지 변경 */}
         <Image 
-          source={gameStart 
-                    ? require('../../assets/images/movingmyohan.gif') 
-                    : require('../../assets/images/myohan.png')} 
+          source={require('../../assets/images/movingmyohan.gif')} 
           style={styles.myohanImage} />
       </Animated.View>
+
+      <Animated.View style={progressBarStyle} />
 
       {correct && (
         <View style={styles.correctModal}>
@@ -91,7 +134,7 @@ const DoingGameScreen = () => {
           />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.blackBoxText}>지민최고</Text>
+          <Text style={styles.blackBoxText}>{currentProblem}  __  __  {currentAnswer} </Text>
         </View>
       </View>
       

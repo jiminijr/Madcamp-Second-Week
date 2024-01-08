@@ -1,4 +1,4 @@
-{
+[
     {"problem": "카이", "answer": "스트", "difficulty": 1},
     {"problem": "도라", "answer": "에몽", "difficulty": 1},
     {"problem": "삼시", "answer": "세끼", "difficulty": 1},
@@ -18,4 +18,4 @@
     {"problem": "파키", "answer": "스탄", "difficulty": 1},
     {"problem": "네덜", "answer": "란드", "difficulty": 1},
     {"problem": "이스", "answer": "라엘", "difficulty": 1}
-}
+]
