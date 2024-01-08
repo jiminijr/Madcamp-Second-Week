@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
@@ -30,14 +31,16 @@ const DoingGameScreen = () => {
   const problems = require('../problems/problem.json');
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
+  const profile = route.params.profile;
   const [users, setUsers] = useState([]);
   const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
+  const [userScores, setUserScores] = useState({});
 
   useEffect(() => {
     // 문제 목록 초기화
     const randomproblems = problems
       .sort(() => 0.5 - Math.random())
-      .slice(0, 100);
+      .slice(0, 20);
     setSelectedProblems(randomproblems);
   }, []);
 
@@ -56,30 +59,39 @@ const DoingGameScreen = () => {
       progressBarAnimation.setValue(0);
       Animated.timing(progressBarAnimation, {
         toValue: 1, // 최대값 1로 설정
-        duration: 9000, // 9초 동안 애니메이션 진행
+        duration: 10000, // 9초 동안 애니메이션 진행
         useNativeDriver: false, // 레이아웃 애니메이션을 위해 false로 설정
       }).start();
 
       const timeout = setTimeout(() => {
         setCurrentProblemIndex(currentProblemIndex + 1);
         settensec(true);
-      }, 10000);
+      }, 10100);
       return () => clearTimeout(timeout); // 컴포넌트 언마운트 시 타이머 정리
     }
   }, [currentProblemIndex, selectedProblems]);
 
   const progressBarStyle = {
-    height: 10,
-    backgroundColor: 'white',
+    marginTop: 30,
+    marginStart: 70,
+    height: 20,
+    backgroundColor: '#FEFAE1',
     width: progressBarAnimation.interpolate({
       inputRange: [0, 1],
-      outputRange: ['100%', '0%'], // 0에서 100%로 너비 변경
+      outputRange: ['65%', '0%'], // 0에서 100%로 너비 변경
     }),
   };
 
   const handleSendMessage = () => {
     if (chat.trim()) {
-      setMessages([...messages, chat]);
+      // 새로운 메시지 객체 생성
+      const newMessage = {
+        text: chat,
+        sender: profile.nickname, // 사용자 이름 추가
+      };
+
+      // 메시지 배열에 새 메시지 추가
+      setMessages([...messages, newMessage]);
 
       // 현재 문제의 정답과 사용자 입력이 일치하는지 검사
       if (chat.trim() === currentAnswer) {
@@ -87,6 +99,9 @@ const DoingGameScreen = () => {
         setCorrect(true);
         moveAnimation.setValue(0);
         setCurrentProblemIndex(currentProblemIndex + 1);
+
+        const newScore = (userScores[profile.nickname] || 0) + 1;
+        setUserScores({...userScores, [profile.nickname]: newScore});
       }
       setChat(''); // 입력 필드 초기화
     }
@@ -110,6 +125,26 @@ const DoingGameScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.blackBox}>
+        <Animated.View style={progressBarStyle}></Animated.View>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('../../assets/images/kaseougi.png')}
+            style={styles.blackBoxImage}
+          />
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.blackBoxText}>{currentProblem}</Text>
+        </View>
+      </View>
+      <View>
+        {Object.entries(userScores).map(([nickname, score]) => (
+          <Text key={profile.nickname}>
+            {nickname}: {score}점
+          </Text>
+        ))}
+      </View>
+
       <Animated.View
         style={[
           styles.animatedContainer,
@@ -120,8 +155,6 @@ const DoingGameScreen = () => {
           style={styles.myohanImage}
         />
       </Animated.View>
-
-      <Animated.View style={progressBarStyle} />
 
       {correct && (
         <View style={styles.correctModal}>
@@ -140,25 +173,14 @@ const DoingGameScreen = () => {
         </View>
       )}
 
-      {/* 상단 검은색 창 */}
-      <View style={styles.blackBox}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../../assets/images/kaseougi.png')}
-            style={styles.blackBoxImage}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.blackBoxText}>{currentProblem}</Text>
-        </View>
-      </View>
-
       {/* 하단 채팅창 */}
       <ScrollView style={styles.chatMessages}>
         {messages.map((message, index) => (
-          <Text key={index} style={styles.chatText}>
-            {message}
-          </Text>
+          <View key={index} style={styles.messageContainer}>
+            <Text style={styles.senderName}>
+              {message.sender}: {message.text}
+            </Text>
+          </View>
         ))}
         {/* 여기에 세로로 글씨를 나열 */}
       </ScrollView>
@@ -212,13 +234,12 @@ const styles = StyleSheet.create({
   },
   blackBox: {
     backgroundColor: 'black',
-    marginTop: 50,
-    alignSelf: 'center',
-    width: 272,
-    height: 153,
+    // alignSelf: 'center',
+    width: '100%',
+    height: '40%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 0,
   },
   imageContainer: {
     position: 'absolute',
@@ -241,11 +262,11 @@ const styles = StyleSheet.create({
     width: 250,
     height: 5,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    marginLeft: 10,
+
     borderColor: '#4E3107',
     borderWidth: 2,
-    borderRadius: 30,
-    padding: 15,
+
+    padding: 20,
   },
   chatContainer: {
     flex: 1,

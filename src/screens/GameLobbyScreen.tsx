@@ -26,7 +26,7 @@ const GameLobbyScreen = () => {
   const route = useRoute<Props['route']>();
   const initialGameTitle = route.params?.gameTitle;
   const inviteCode = route.params?.inviteCode;
-  const profile = JSON.parse(route.params.profile);
+  const profile = route.params.profile;
   const [users, setUsers] = useState([]);
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
@@ -53,9 +53,24 @@ const GameLobbyScreen = () => {
   useEffect(() => {
     // 서버에서 사용자 목록을 가져오는 로직 구현
     setUsers([
-      {id: '1', name: '사용자1'},
-      {id: '2', name: '사용자2'},
-      {id: '3', name: '사용자3'},
+      {
+        id: '3259616325',
+        nickname: '최지민1',
+        thumbnailImageUrl:
+          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
+      },
+      {
+        id: '325961241246325',
+        nickname: '최지민2',
+        thumbnailImageUrl:
+          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
+      },
+      {
+        id: '3259616124124325',
+        nickname: '최지민3',
+        thumbnailImageUrl:
+          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
+      },
     ]);
   }, []);
 
@@ -83,7 +98,7 @@ const GameLobbyScreen = () => {
               keyExtractor={item => item.id}
               contentContainerStyle={{gap: 5}}
               renderItem={({item}) => (
-                <Text style={styles.text1}>{item.name}</Text>
+                <Text style={styles.text1}>{item.nickname}</Text>
               )}
             />
             <Text style={styles.text4}> {users.length} / 10 </Text>

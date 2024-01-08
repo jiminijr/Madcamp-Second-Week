@@ -27,7 +27,7 @@ const EnterGameScreen = () => {
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
 
-  const profile = JSON.parse(route.params.profile);
+  const profile = route.params.profile;
   console.log(profile);
 
   const selectGame = (value: string) => () => {

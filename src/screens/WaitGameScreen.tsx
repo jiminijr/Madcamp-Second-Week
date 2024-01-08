@@ -11,7 +11,7 @@ const WaitGameScreen = () => {
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
 
-  const profile = JSON.parse(route.params.profile);
+  const profile = route.params.profile;
   const gameTitle = route.params?.gameTitle;
   const inviteCode = route.params?.inviteCode;
   console.log(profile, '웨잇게임');
