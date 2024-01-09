@@ -12,25 +12,26 @@ export type GameStackParamList = {
     profile: Profile;
     token: string;
     gameTitle: string;
-    inviteCode: String;
+    inviteCode: string;
   };
   WaitGame: {
     profile: Profile;
     token: string;
     gameTitle: string;
-    inviteCode: String;
+    inviteCode: string;
   };
   GameLobby: {
     profile: Profile;
     token: string;
     gameTitle: string;
-    inviteCode: String;
+    inviteCode: string;
   };
   DoingGame: {
     profile: Profile;
     token: string;
     gameTitle: string;
-    inviteCode: String;
+    inviteCode: string;
+    socket: any;
   };
 };
 

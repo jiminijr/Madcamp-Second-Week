@@ -1,6 +1,6 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,13 @@ import {
   Modal,
   Pressable,
   Dimensions,
+  BackHandler,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
 import {invert} from 'react-native-svg/lib/typescript/elements/Shape';
+import {Socket, io} from 'socket.io-client';
+import {Profile} from '../../App';
 
 const {width, height} = Dimensions.get('window');
 
@@ -24,13 +27,64 @@ type Props = StackScreenProps<GameStackParamList, 'GameLobby'>;
 const GameLobbyScreen = () => {
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
-  const initialGameTitle = route.params?.gameTitle;
-  const inviteCode = route.params?.inviteCode;
+  const initialGameTitle = route.params.gameTitle;
+  const inviteCode = route.params.inviteCode;
   const profile = route.params.profile;
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<Profile[]>([]);
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
   const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
+  const [hostId, setHostId] = useState<number>(-1);
+  const [isFirstRender, setIsFirstRender] = useState<boolean>(true);
+  const socketRef = useRef<any>(null);
+
+  useEffect(() => {
+    // 서버에서 사용자 목록을 가져오는 로직 구현
+    socketRef.current = io('http://192.249.30.65:3000/gamelobby');
+    console.log(socketRef.current.id);
+    socketRef.current?.emit('joinRoom', inviteCode, profile);
+    socketRef.current?.on(
+      'members',
+      (gameInfo: {users: Profile[]; gameMode: string; hostId: number}) => {
+        console.log(gameInfo);
+        setUsers(gameInfo.users);
+        setGameTitle(gameInfo.gameMode);
+        setHostId(gameInfo.hostId);
+      },
+    );
+    socketRef.current?.on('changeGame', (gameMode: string) => {
+      console.log(gameMode);
+      setGameTitle(gameMode);
+    });
+
+    const handleBackPress = () => {
+      socketRef.current?.disconnect();
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   socket.on('changeGame', gameMode => {
+  //     console.log(gameMode);
+  //     setGameTitle(gameMode);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   if (!isFirstRender) {
+  //     socket.emit('changeGame', inviteCode, gameTitle);
+  //     socket.on('changeGame', (gameMode: string) => {
+  //       setGameTitle(gameMode);
+  //     });
+  //   }
+  //   setIsFirstRender(false);
+  // }, [gameTitle]);
 
   const playGame = () => {
     console.log(profile, '플레이게임');
@@ -40,43 +94,17 @@ const GameLobbyScreen = () => {
       token: route.params.token,
       gameTitle: gameTitle,
       inviteCode: inviteCode,
+      socket: socketRef.current,
     });
   };
 
   const selectGame = (value: string) => () => {
-    setGameTitle(value);
     setGameSelectModalVisible(false);
-    navigation.navigate('GameLobby', {
-      profile: profile,
-      token: route.params.token,
-      gameTitle: value,
-      inviteCode: inviteCode,
+    socketRef.current?.emit('changeGame', inviteCode, value);
+    socketRef.current?.on('changeGame', (gameMode: string) => {
+      setGameTitle(gameMode);
     });
   };
-
-  useEffect(() => {
-    // 서버에서 사용자 목록을 가져오는 로직 구현
-    setUsers([
-      {
-        id: '3259616325',
-        nickname: '최지민1',
-        thumbnailImageUrl:
-          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
-      },
-      {
-        id: '325961241246325',
-        nickname: '최지민2',
-        thumbnailImageUrl:
-          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
-      },
-      {
-        id: '3259616124124325',
-        nickname: '최지민3',
-        thumbnailImageUrl:
-          'https://k.kakaocdn.net/dn/bF8Lg6/btsC2B3gqEo/2xaEiN0FkVypQsN5nTGxO0/img_110x110.jpg',
-      },
-    ]);
-  }, []);
 
   return (
     <ImageBackground
@@ -99,10 +127,11 @@ const GameLobbyScreen = () => {
             <FlatList
               style={styles.flatList}
               data={users}
-              keyExtractor={item => item.id}
               contentContainerStyle={{gap: 5}}
               renderItem={({item}) => (
-                <Text style={styles.text1}>{item.nickname}</Text>
+                <Text style={styles.text1} key={item.id}>
+                  {item.nickname}
+                </Text>
               )}
             />
             <Text style={styles.text4}> {users.length} / 10 </Text>
@@ -113,28 +142,30 @@ const GameLobbyScreen = () => {
         <Text style={styles.text2}>초대 코드 : {inviteCode}</Text>
         <Text style={styles.text3}>현재 게임 : {gameTitle}</Text>
       </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={playGame} style={styles.button}>
-          <ImageBackground
-            source={require('../../assets/images/gamestart.png')}
-            style={styles.buttonImage}>
-            <Text style={styles.buttonText}>게임 시작</Text>
-          </ImageBackground>
-        </TouchableOpacity>
+      {profile.id === hostId && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={playGame} style={styles.button}>
+            <ImageBackground
+              source={require('../../assets/images/gamestart.png')}
+              style={styles.buttonImage}>
+              <Text style={styles.buttonText}>게임 시작</Text>
+            </ImageBackground>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            setGameSelectModalVisible(true);
-          }}
-          style={styles.button}>
-          <ImageBackground
-            source={require('../../assets/images/gamechange.png')}
-            style={styles.buttonImage}
-            resizeMode="contain">
-            <Text style={styles.buttonText}>게임 변경</Text>
-          </ImageBackground>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={() => {
+              setGameSelectModalVisible(true);
+            }}
+            style={styles.button}>
+            <ImageBackground
+              source={require('../../assets/images/gamechange.png')}
+              style={styles.buttonImage}
+              resizeMode="contain">
+              <Text style={styles.buttonText}>게임 변경</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Modal
         visible={gameSelectModalVisible}

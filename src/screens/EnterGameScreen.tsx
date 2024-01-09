@@ -1,12 +1,15 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Image,
   ImageBackground,
   Modal,
+  NativeSyntheticEvent,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
+  TextInputChangeEventData,
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -14,6 +17,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
 import FastImage from 'react-native-fast-image';
+import io from 'socket.io-client';
 
 type Props = StackScreenProps<GameStackParamList, 'EnterGame'>;
 
@@ -21,8 +25,9 @@ const EnterGameScreen = () => {
   const [gameSelectModalVisible, setGameSelectModalVisible] =
     useState<boolean>(false);
   const [CodeInputVisible, setCodeInputModalVisible] = useState<boolean>(false);
-  const [enteredCode, setEnteredCode] = useState('');
-  const [gameTitle, setGameTitle] = useState<string>();
+  const [enteredCode, setEnteredCode] = useState<string>('');
+  const [gameTitle, setGameTitle] = useState<string>('');
+  const [isFirstRender, setIsFirstRender] = useState<boolean>(true);
 
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
@@ -30,35 +35,77 @@ const EnterGameScreen = () => {
   const profile = route.params.profile;
   console.log(profile);
 
+  useEffect(() => {
+    if (!isFirstRender) {
+      const socket = io('http://192.249.30.65:3000/entergame');
+      console.log(socket.id);
+
+      socket.emit('createRoom', gameTitle, profile);
+      socket.on('createRoom', (code: string) => {
+        console.log(code);
+        navigation.navigate('WaitGame', {
+          profile: profile,
+          token: route.params.token,
+          gameTitle: gameTitle,
+          inviteCode: code,
+        });
+        socket.disconnect();
+      });
+    }
+    setIsFirstRender(false);
+  }, [gameTitle]);
+
   const selectGame = (value: string) => () => {
-    const code = generateRandomCode(); // 랜덤 코드 생성
     setGameTitle(value);
     setGameSelectModalVisible(false);
     setCodeInputModalVisible(false);
-    navigation.navigate('WaitGame', {
-      profile: profile,
-      token: route.params.token,
-      gameTitle: value,
-      inviteCode: code,
-    });
-    console.log(profile, '엔터게임');
-    console.log(value);
-    console.log('Generated Invite Code:', code);
+    // console.log(profile, '엔터게임');
+    // console.log(value);
+    // console.log('Generated Invite Code:', code);
+  };
+
+  const changeEnterCode = (
+    evt: NativeSyntheticEvent<TextInputChangeEventData>,
+  ) => {
+    setEnteredCode(evt.nativeEvent.text);
+    console.log(enteredCode);
   };
 
   const handleCodeSubmit = () => {
     console.log('Entered Code:', enteredCode);
     // 여기에 코드 처리 로직 추가
     // 예: navigation.navigate('GameLobby', { enteredCode: enteredCode });
-  };
-  const generateRandomCode = () => {
-    let code = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < 6; i++) {
-      code += characters.charAt(Math.floor(Math.random() * charactersLength));
+    if (enteredCode === '') {
+      Alert.alert('코드를 입력해주세요.');
+      return;
     }
-    return code;
+    const socket = io('http://192.249.30.65:3000/entergame');
+    console.log(socket);
+    socket.emit('verifyGame', enteredCode);
+    socket.on('verifyGame', status => {
+      if (status === 1) {
+        setEnteredCode('');
+        setCodeInputModalVisible(false);
+        navigation.navigate('WaitGame', {
+          profile: profile,
+          token: route.params.token,
+          gameTitle: gameTitle,
+          inviteCode: enteredCode,
+        });
+        socket.disconnect();
+        return;
+      }
+      if (status === -1) {
+        socket.disconnect();
+        Alert.alert('코드를 확인해 주세요.');
+        return;
+      }
+      if (status === -2) {
+        socket.disconnect();
+        Alert.alert('방이 가득 찼습니다.');
+        return;
+      }
+    });
   };
 
   return (
@@ -159,16 +206,14 @@ const EnterGameScreen = () => {
           />
           <TextInput
             style={styles.codeInput}
-            onChangeText={setEnteredCode}
+            onChange={changeEnterCode}
             value={enteredCode}
+            placeholderTextColor="black"
             placeholder="코드를 입력하세요."
-            keyboardType="default"
           />
-          <TouchableOpacity
-            onPress={handleCodeSubmit}
-            style={styles.submitButton}>
+          <Pressable onPress={handleCodeSubmit} style={styles.submitButton}>
             <Text style={styles.submitButtonText}>확인</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </Modal>
     </ImageBackground>
@@ -275,6 +320,7 @@ const styles = StyleSheet.create({
     fontFamily: 'baemin',
     textAlign: 'center',
     padding: 10,
+    color: 'black',
   },
   submitButton: {
     backgroundColor: '#FFD400',
