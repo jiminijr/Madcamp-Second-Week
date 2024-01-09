@@ -44,7 +44,7 @@ const LoginScreen: FC<Props> = ({setIsLogin, setProfile, setToken}) => {
       resizeMode="stretch">
       <View style={styles.overlay}>
         <Image
-          source={require('../../assets/images/myohan.png')}
+          source={require('../../assets/images/movingmyohan.gif')}
           style={styles.myohan}
           resizeMode="cover"
         />

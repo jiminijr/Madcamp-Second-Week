@@ -5,6 +5,7 @@ import EnterGameScreen from '../screens/EnterGameScreen';
 import WaitGameScreen from '../screens/WaitGameScreen';
 import GameLobbyScreen from '../screens/GameLobbyScreen';
 import DoingGameScreen from '../screens/DoingGameScreen';
+import EndingGameScreen from '../screens/EndingGameScreen';
 import {Profile} from '../../App';
 
 export type GameStackParamList = {
@@ -27,6 +28,12 @@ export type GameStackParamList = {
     inviteCode: String;
   };
   DoingGame: {
+    profile: Profile;
+    token: string;
+    gameTitle: string;
+    inviteCode: String;
+  };
+  EndingGame: {
     profile: Profile;
     token: string;
     gameTitle: string;
@@ -81,6 +88,12 @@ const GameStackNavigator: FC<Props> = ({token, profile}) => {
       <Stack.Screen
         name="DoingGame"
         component={DoingGameScreen}
+        options={{headerShown: false}}
+        initialParams={{profile: profile, token: token}}
+      />
+      <Stack.Screen
+        name="EndingGame"
+        component={EndingGameScreen}
         options={{headerShown: false}}
         initialParams={{profile: profile, token: token}}
       />
