@@ -2,11 +2,14 @@ import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import EnterGameScreen from '../screens/EnterGameScreen';
 import DoingGameScreen from '../screens/DoingGameScreen';
+import EndingGameScreen from '../screens/EndingGameScreen';
+
 
 export type GameStackParamList = {
   EnterGame: undefined;
   DoingGame: undefined;
   Gameover: undefined;
+  EndingGame: undefined;
 };
 
 const Stack = createStackNavigator<GameStackParamList>();

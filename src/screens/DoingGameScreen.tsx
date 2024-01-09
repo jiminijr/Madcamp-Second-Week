@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, ScrollView, Image, StyleSheet, Text, Animated } from 'react-native';
+import { View, TextInput, ScrollView, Image, StyleSheet, Text, Animated, ImageBackground } from 'react-native';
 
 const DoingGameScreen = () => {
   const [chat, setChat] = useState('');
@@ -10,23 +10,28 @@ const DoingGameScreen = () => {
   const progressBarAnimation = useRef(new Animated.Value(0)).current;
   const [currentProblem, setCurrentProblem] = useState('');
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const problems = require('../problems/problem.json');
+  const [currentType, setCurrentType] = useState('');
+  const problems = require('../problems/imageproblem.json');
   const [selectedProblems, setSelectedProblems] =  useState([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
+
   
 
   useEffect(() => {
     // 문제 목록 초기화
     const randomproblems = problems.sort(() => 0.5 - Math.random()).slice(0, 10);
     setSelectedProblems(randomproblems);
-  }, []); 
+    
+  }, []);
 
   useEffect(() => {
+    
     if (currentProblemIndex < selectedProblems.length){
       console.log({selectedProblems});
       console.log({currentProblemIndex});
       setCurrentProblem(selectedProblems[currentProblemIndex].problem);
       setCurrentAnswer(selectedProblems[currentProblemIndex].answer);
+      setCurrentType(selectedProblems[currentProblemIndex].type);
       moveAnimation.setValue(0);
       Animated.timing(
         moveAnimation,
@@ -63,6 +68,11 @@ const DoingGameScreen = () => {
       inputRange: [0, 1],
       outputRange: ['100%', '0%'] // 0에서 100%로 너비 변경
     })
+  };
+
+  const imageMap = {
+    'jihwan': require('../../assets/images/jihwan.png')
+    // 다른 이미지 매핑
   };
 
   const handleSendMessage = () => {
@@ -133,11 +143,17 @@ const DoingGameScreen = () => {
             style={styles.blackBoxImage}
           />
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.blackBoxText}>{currentProblem}  __  __  {currentAnswer} </Text>
-        </View>
+        {currentType === 'text' ? (
+        <Text style={styles.blackBoxText}>{currentProblem}</Text>
+      ) : (
+        <Image
+          source={imageMap[currentProblem]}
+          style={styles.blackBoxImage}
+        />
+      )}
+        
       </View>
-      
+
       {/* 하단 채팅창 */}
       <ScrollView style={styles.chatMessages}>
         {messages.map((message, index) => (
