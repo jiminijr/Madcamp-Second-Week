@@ -35,9 +35,9 @@ const DoingGameScreen = () => {
   const [progressBarColor, setProgressBarColor] = useState('#FEFAE1');
   const [currentCountdownNumber, setCurrentCountdownNumber] = useState(3);
   const [gameStage, setGameStage] = useState('gameInstruction'); // 'gameInstruction', 'countdown', 'inGame'
-  const [reRender, setReRender] = useState<boolean>(true);
 
   let score = 0;
+  let left = 30;
   const route = useRoute<Props['route']>();
   const progressBarAnimation = useRef(new Animated.Value(0)).current;
   const moveAnimation = useRef(new Animated.Value(0)).current; // 애니메이션 state
@@ -50,52 +50,51 @@ const DoingGameScreen = () => {
   const [users, setUsers] = useState<Profile[]>(route.params.users);
 
   useEffect(() => {
-    socketRef.current = io('http://192.249.30.65:3000/playgame');
+    socketRef.current = io('http://192.249.30.240:3000/playgame');
     socketRef.current.emit('joinGame', inviteCode);
-    console.log('socket', socketRef.current.id);
     if (profile.id === route.params.hostId) {
       socketRef.current.emit('initializeGame', inviteCode, gameTitle);
-      console.log('initializeGame', inviteCode, gameTitle);
     }
-    socketRef.current.on('initializeGame', (problem: string) => {
-      setCurrentProblem(problem);
-      console.log('initializeGame', problem);
-    });
+    socketRef.current.on(
+      'initializeGame',
+      (problem: {problem: string; isText: boolean}) => {
+        setCurrentProblem(problem.problem);
+      },
+    );
     socketRef.current.on(
       'chatting',
       (
         chat: {userId: number; userChat: string},
         gameChats: {userId: number; userChat: string}[],
-        problem: string,
+        problem: {problem: string; isText: boolean},
         correct: boolean,
       ) => {
-        console.log('chatting', chat, gameChats, problem);
         setMessages(gameChats);
-        console.log('currentProblem', currentProblem);
         if (correct) {
           if (chat.userId === profile.id) {
             score = score + 1;
-            console.log('score', score);
             setScoreState(score);
           }
 
-          console.log('bbbbbbb');
           setCorrectUser(chat.userId);
           setCorrect(true);
-          setCurrentProblem(problem);
+          setCurrentProblem(problem.problem);
         }
       },
     );
-    socketRef.current.on('newProblem', (problem: string) => {
-      setCurrentProblem(problem);
-    });
+    socketRef.current.on(
+      'newProblem',
+      (problem: {problem: string; isText: boolean}) => {
+        setCurrentProblem(problem.problem);
+      },
+    );
     // socketRef.current.on('finishGame', ()=> {
     //   navigation.
     // });
   }, []);
 
-  let colorChangeTimeout;
-  let blinkIntervalId;
+  let colorChangeTimeout: any;
+  let blinkIntervalId: any;
 
   useEffect(() => {
     if (gameStage === 'gameInstruction') {
@@ -156,7 +155,7 @@ const DoingGameScreen = () => {
     }
   }, [gameStage, currentCountdownNumber, currentProblem]);
 
-  const getCountdownImage = number => {
+  const getCountdownImage = (number: number) => {
     switch (number) {
       case 3:
         return require('../../assets/images/num3.gif');

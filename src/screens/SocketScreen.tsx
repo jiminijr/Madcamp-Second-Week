@@ -29,7 +29,7 @@ const SocketScreen = () => {
   //     };
   //   }, []);
 
-  const socket = io(`http://192.249.30.65:3000/gamelobby/`);
+  const socket = io(`http://192.249.30.240:3000/gamelobby/`);
   const create = () => {
     socket.emit('createRoom', 1, id);
     socket.on('createRoom', code => {
@@ -38,7 +38,7 @@ const SocketScreen = () => {
   };
 
   const join = () => {
-    // const socket = io(`http://192.249.30.65:3000/gamelobby/`);
+    // const socket = io(`http://192.249.30.240:3000/gamelobby/`);
     let joined = false;
     const code = `12345`;
     socket.emit('joinRoom', code, id);

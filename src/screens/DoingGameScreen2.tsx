@@ -31,7 +31,7 @@ const DoingGameScreen = () => {
   };
 
   useEffect(() => {
-    socketRef.current = io('http://192.249.30.65:3000/playgame');
+    socketRef.current = io('http://192.249.30.240:3000/playgame');
     socketRef.current.emit('joinGame', inviteCode);
     console.log('socket', socketRef.current.id);
     if (profile.id === 3259723489) {

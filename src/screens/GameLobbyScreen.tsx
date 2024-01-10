@@ -41,14 +41,12 @@ const GameLobbyScreen = () => {
 
   useEffect(() => {
     // 서버에서 사용자 목록을 가져오는 로직 구현
-    socketRef.current = io('http://192.249.30.65:3000/gamelobby');
-    console.log(socketRef.current.id);
+    socketRef.current = io('http://192.249.30.240:3000/gamelobby');
     socketRef.current?.emit('joinRoom', inviteCode, profile);
     if (!start) {
       socketRef.current?.on(
         'members',
         (gameInfo: {users: Profile[]; gameMode: string; hostId: number}) => {
-          console.log(gameInfo);
           setUsers(gameInfo.users);
           setGameTitle(gameInfo.gameMode);
           setHostId(gameInfo.hostId);
@@ -56,7 +54,6 @@ const GameLobbyScreen = () => {
       );
     }
     socketRef.current?.on('changeGame', (gameMode: string) => {
-      console.log(gameMode);
       setGameTitle(gameMode);
     });
 
@@ -109,9 +106,6 @@ const GameLobbyScreen = () => {
   // }, [gameTitle]);
 
   const playGame = () => {
-    console.log(profile, '플레이게임');
-    console.log(gameTitle);
-
     socketRef.current.emit('startGame', inviteCode);
   };
 
@@ -206,13 +200,13 @@ const GameLobbyScreen = () => {
             <Text style={styles.selectorText}>4글자</Text>
           </Pressable>
           <Pressable
-            onPress={selectGame('속담')}
+            onPress={selectGame('랜덤')}
             style={{
               ...styles.selectorBtn,
               borderBottomWidth: 1,
               borderColor: 'black',
             }}>
-            <Text style={styles.selectorText}>속담</Text>
+            <Text style={styles.selectorText}>랜덤</Text>
           </Pressable>
           <Pressable
             onPress={selectGame('인물')}

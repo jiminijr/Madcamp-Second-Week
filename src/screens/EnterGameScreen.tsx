@@ -37,7 +37,7 @@ const EnterGameScreen = () => {
 
   useEffect(() => {
     if (!isFirstRender) {
-      const socket = io('http://192.249.30.65:3000/entergame');
+      const socket = io('http://192.249.30.240:3000/entergame');
       console.log(socket.id);
 
       socket.emit('createRoom', gameTitle, profile);
@@ -79,7 +79,7 @@ const EnterGameScreen = () => {
       Alert.alert('코드를 입력해주세요.');
       return;
     }
-    const socket = io('http://192.249.30.65:3000/entergame');
+    const socket = io('http://192.249.30.240:3000/entergame');
     console.log(socket);
     socket.emit('verifyGame', enteredCode);
     socket.on('verifyGame', status => {
@@ -166,13 +166,13 @@ const EnterGameScreen = () => {
             <Text style={styles.selectorText}>4글자</Text>
           </Pressable>
           <Pressable
-            onPress={selectGame('속담')}
+            onPress={selectGame('랜덤')}
             style={{
               ...styles.selectorBtn,
               borderBottomWidth: 1,
               borderColor: 'black',
             }}>
-            <Text style={styles.selectorText}>속담</Text>
+            <Text style={styles.selectorText}>랜덤</Text>
           </Pressable>
           <Pressable
             onPress={selectGame('인물')}
