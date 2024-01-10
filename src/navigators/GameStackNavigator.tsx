@@ -12,8 +12,6 @@ export type GameStackParamList = {
   EnterGame: {
     profile: Profile;
     token: string;
-    gameTitle: string;
-    inviteCode: string;
   };
   WaitGame: {
     profile: Profile;
@@ -38,8 +36,12 @@ export type GameStackParamList = {
   EndingGame: {
     profile: Profile;
     token: string;
-    gameTitle: string;
-    inviteCode: String;
+    users: {
+      id: number;
+      nickname: string;
+      thumbnailImageUrl: string;
+      score: number;
+    }[];
   };
 };
 

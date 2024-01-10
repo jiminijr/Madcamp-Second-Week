@@ -1,3 +1,4 @@
+import {StackScreenProps} from '@react-navigation/stack';
 import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
@@ -10,8 +11,26 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import {GameStackParamList} from '../navigators/GameStackNavigator';
+import {useNavigation, useRoute} from '@react-navigation/native';
+
+type Props = StackScreenProps<GameStackParamList, 'EndingGame'>;
 
 const EndingGameScreen = () => {
+  const route = useRoute<Props['route']>();
+  const navigation = useNavigation<Props['navigation']>();
+
+  const users = route.params.users;
+
+  console.log(route.params.users);
+
+  const exit = () => {
+    navigation.navigate('EnterGame', {
+      profile: route.params.profile,
+      token: route.params.token,
+    });
+  };
+
   return (
     <ImageBackground
       source={require('../../assets/images/background.png')}
@@ -61,51 +80,73 @@ const EndingGameScreen = () => {
         </View>
         <View style={styles.firstpersonContainer}>
           <Image
-            source={require('../../assets/images/jihwan.png')}
+            source={{uri: users[0].thumbnailImageUrl}}
             style={styles.thumbnailimage}
             resizeMode="contain"
           />
-          <Text style={styles.firstrank}>1등</Text>
+          <Text style={styles.firstrank}>{users[0].nickname}</Text>
         </View>
-        <View style={styles.secondpersonContainer}>
-          <Image
-            source={require('../../assets/images/jihwan.png')}
-            style={styles.thumbnailimage}
-            resizeMode="contain"
-          />
-          <Text style={styles.firstrank}>2등</Text>
-        </View>
-        <View style={styles.thirdpersonContainer}>
-          <Image
-            source={require('../../assets/images/jihwan.png')}
-            style={styles.thumbnailimage}
-            resizeMode="contain"
-          />
-          <Text style={styles.firstrank}>3등</Text>
-        </View>
+        {users.length >= 2 && (
+          <View style={styles.secondpersonContainer}>
+            <Image
+              source={{uri: users[1].thumbnailImageUrl}}
+              style={styles.thumbnailimage}
+              resizeMode="contain"
+            />
+            <Text style={styles.firstrank}>{users[1].nickname}</Text>
+          </View>
+        )}
+        {users.length >= 3 && (
+          <View style={styles.thirdpersonContainer}>
+            <Image
+              source={{uri: users[2].thumbnailImageUrl}}
+              style={styles.thumbnailimage}
+              resizeMode="contain"
+            />
+            <Text style={styles.firstrank}>{users[2].nickname}</Text>
+          </View>
+        )}
       </ImageBackground>
 
       <View style={styles.blackBox}>
-        <View style={styles.textContainer}>
-          <Text style={styles.blackBoxText}>조연</Text>
-        </View>
+        <Text style={styles.blackBoxText}>조연</Text>
+        <ScrollView>
+          <View style={styles.textContainer}>
+            <View>
+              {users.map(
+                (user, index) =>
+                  index % 2 === 1 && (
+                    <Text style={styles.assistText}>{user.nickname}</Text>
+                  ),
+              )}
+            </View>
+            <View>
+              {users.map(
+                (user, index) =>
+                  index % 2 === 0 && (
+                    <Text style={styles.assistText}>{user.nickname}</Text>
+                  ),
+              )}
+            </View>
+          </View>
+        </ScrollView>
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        {/* <TouchableOpacity style={styles.button}>
           <ImageBackground
             source={require('../../assets/images/restart.png')}
             style={styles.buttonImage}>
             <Text style={styles.buttonText}>다시 시작</Text>
           </ImageBackground>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={exit}>
           <ImageBackground
             source={require('../../assets/images/exit.png')}
             style={styles.buttonImage}
             resizeMode="contain">
-            <Text style={styles.buttonText}>게임 퇴장</Text>
+            <Text style={styles.buttonText}>나가기</Text>
           </ImageBackground>
         </TouchableOpacity>
       </View>
@@ -250,17 +291,26 @@ const styles = StyleSheet.create({
   blackBox: {
     backgroundColor: 'black',
     alignSelf: 'center',
-    width: 272,
-    height: 153,
+    width: 300,
+    height: 160,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 8,
   },
   textContainer: {
     // 필요한 경우 추가 스타일링
+    flexDirection: 'row',
+    width: 300,
+    justifyContent: 'space-evenly',
+    flex: 1,
   },
   blackBoxText: {
     color: 'white',
     fontSize: 30,
+  },
+  assistText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

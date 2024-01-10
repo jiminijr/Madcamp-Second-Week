@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
   TextInputChangeEventData,
+  ToastAndroid,
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -76,7 +77,8 @@ const EnterGameScreen = () => {
     // 여기에 코드 처리 로직 추가
     // 예: navigation.navigate('GameLobby', { enteredCode: enteredCode });
     if (enteredCode === '') {
-      Alert.alert('코드를 입력해주세요.');
+      // Alert.alert('코드를 입력해주세요.');
+      ToastAndroid.show('코드를 입력해 주세요.', ToastAndroid.SHORT);
       return;
     }
     const socket = io('http://192.249.30.240:3000/entergame');
@@ -97,12 +99,14 @@ const EnterGameScreen = () => {
       }
       if (status === -1) {
         socket.disconnect();
-        Alert.alert('코드를 확인해 주세요.');
+        // Alert.alert('코드를 확인해 주세요.');
+        ToastAndroid.show('코드를 확인해 주세요.', ToastAndroid.SHORT);
         return;
       }
       if (status === -2) {
         socket.disconnect();
-        Alert.alert('방이 가득 찼습니다.');
+        // Alert.alert('방이 가득 찼습니다.');
+        ToastAndroid.show('방이 가득 찼습니다.', ToastAndroid.SHORT);
         return;
       }
     });

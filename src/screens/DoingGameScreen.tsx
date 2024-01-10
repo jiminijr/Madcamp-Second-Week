@@ -25,12 +25,16 @@ const DoingGameScreen = () => {
   >([]);
   const [correct, setCorrect] = useState(false);
   const [tensec, settensec] = useState(false);
-  const [currentProblem, setCurrentProblem] = useState('');
+  const [currentProblem, setCurrentProblem] = useState<{
+    problem: string;
+    isText: boolean;
+  }>({problem: '', isText: false});
   const [scoreState, setScoreState] = useState<number>(0);
   const [userScores, setUserScores] = useState();
   // route.params.users?.map(user => {
   //   return {userId: user.id, score: 0};
   // }),
+  const [leftProblem, setLeftProblem] = useState<number>(30);
   const [correctUser, setCorrectUser] = useState<number>(-1);
   const [progressBarColor, setProgressBarColor] = useState('#FEFAE1');
   const [currentCountdownNumber, setCurrentCountdownNumber] = useState(3);
@@ -39,34 +43,56 @@ const DoingGameScreen = () => {
   let score = 0;
   let left = 30;
   const route = useRoute<Props['route']>();
+  const navigation = useNavigation<Props['navigation']>();
   const progressBarAnimation = useRef(new Animated.Value(0)).current;
   const moveAnimation = useRef(new Animated.Value(0)).current; // 애니메이션 state
-  const navigation = useNavigation<Props['navigation']>();
   const profile = route.params.profile;
   const socketRef = useRef<any>(null);
   const inviteCode = route.params.inviteCode;
   const gameTitle = route.params.gameTitle;
+  const imageMap = {
+    jihwan: require('../../assets/images/jihwan.png'),
+    woong: require('../../assets/images/woong.png'),
+    sungmin: require('../../assets/images/sungmin.jpg'),
+    dayun: require('../../assets/images/dayun.jpg'),
+    junghun: require('../../assets/images/junghun.jpg'),
+    junseo: require('../../assets/images/junseo.png'),
+    kyeongmin: require('../../assets/images/kyeongmin.jpg'),
+    jimin: require('../../assets/images/jimin.png'),
+    sedong: require('../../assets/images/sedong.jpg'),
+    youngsuk: require('../../assets/images/youngsuk.jpg'),
+  };
 
-  const [users, setUsers] = useState<Profile[]>(route.params.users);
+  // const [users, setUsers] = useState<Profile[]>(route.params.users);
+
+  let users = route.params.users.map(user => ({
+    id: user.id,
+    nickname: user.nickname,
+    thumbnailImageUrl: user.thumbnailImageUrl,
+    score: 0,
+  }));
 
   useEffect(() => {
     socketRef.current = io('http://192.249.30.240:3000/playgame');
+
     socketRef.current.emit('joinGame', inviteCode);
+
     if (profile.id === route.params.hostId) {
       socketRef.current.emit('initializeGame', inviteCode, gameTitle);
     }
+
     socketRef.current.on(
       'initializeGame',
       (problem: {problem: string; isText: boolean}) => {
-        setCurrentProblem(problem.problem);
+        setCurrentProblem(problem);
       },
     );
+
     socketRef.current.on(
       'chatting',
       (
         chat: {userId: number; userChat: string},
         gameChats: {userId: number; userChat: string}[],
-        problem: {problem: string; isText: boolean},
         correct: boolean,
       ) => {
         setMessages(gameChats);
@@ -76,21 +102,40 @@ const DoingGameScreen = () => {
             setScoreState(score);
           }
 
+          const index = users.findIndex(user => user.id === chat.userId);
+          users[index].score++;
+
+          // left = left - 1;
+          // setLeftProblem(left);
           setCorrectUser(chat.userId);
           setCorrect(true);
-          setCurrentProblem(problem.problem);
         }
       },
     );
+
     socketRef.current.on(
       'newProblem',
       (problem: {problem: string; isText: boolean}) => {
-        setCurrentProblem(problem.problem);
+        setCurrentProblem(problem);
+        left = left - 1;
+        setLeftProblem(left);
       },
     );
-    // socketRef.current.on('finishGame', ()=> {
-    //   navigation.
-    // });
+
+    socketRef.current.on('endGame', (endGame: boolean) => {
+      if (endGame) {
+        socketRef.current.disconnect();
+        users.sort((a, b) => b.score - a.score);
+        navigation.replace('EndingGame', {
+          profile: profile,
+          token: route.params.token,
+          users: users,
+        });
+      }
+    });
+    return () => {
+      socketRef.current.disconnect();
+    };
   }, []);
 
   let colorChangeTimeout: any;
@@ -143,6 +188,8 @@ const DoingGameScreen = () => {
       const timeout = setTimeout(() => {
         progressBarAnimation.setValue(0);
         settensec(true);
+        // left = left - 1;
+        // setLeftProblem(left);
         if (profile.id === route.params.hostId)
           socketRef.current.emit('newProblem', inviteCode);
       }, 10100);
@@ -236,11 +283,18 @@ const DoingGameScreen = () => {
               style={styles.countdownImage}
             />
           )}
-          {gameStage === 'inGame' && (
-            <Text style={styles.blackBoxText}>{currentProblem}</Text>
-          )}
+          {gameStage === 'inGame' &&
+            (currentProblem.isText ? (
+              <Text style={styles.blackBoxText}>{currentProblem.problem}</Text>
+            ) : (
+              <Image
+                source={imageMap[currentProblem.problem]}
+                style={styles.blackBoxImageProblem}
+              />
+            ))}
         </View>
         <View style={styles.score}>
+          <Text style={styles.scoreText}>{`남은 문제 수: ${leftProblem}`}</Text>
           <Text style={styles.scoreText}>{`나의 점수: ${scoreState}`}</Text>
         </View>
       </View>
@@ -248,17 +302,16 @@ const DoingGameScreen = () => {
         {/* 하단 채팅창 */}
         <ScrollView style={styles.chatMessages}>
           {messages.map((message, index) => (
-            <View key={index} style={styles.messageContainer}>
-              <Text
-                style={
-                  profile.id === message.userId
-                    ? styles.chatTextMe
-                    : styles.chatText
-                }>
-                {users.find(user => user.id === message.userId)?.nickname}:{' '}
-                {message.userChat}
-              </Text>
-            </View>
+            <Text
+              style={
+                profile.id === message.userId
+                  ? styles.chatTextMe
+                  : styles.chatText
+              }
+              key={index}>
+              {users.find(user => user.id === message.userId)?.nickname}:{' '}
+              {message.userChat}
+            </Text>
           ))}
           {/* 여기에 세로로 글씨를 나열 */}
         </ScrollView>
@@ -270,7 +323,9 @@ const DoingGameScreen = () => {
             source={require('../../assets/images/okey.gif')}
             style={styles.correctImage}
           />
-          <Text>{users.find(user => user.id === correctUser)?.nickname}</Text>
+          <Text style={styles.correctName}>
+            {users.find(user => user.id === correctUser)?.nickname}
+          </Text>
         </View>
       )}
       {tensec && (
@@ -319,10 +374,16 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{translateX: -100}, {translateY: -100}],
     zIndex: 1, // 다른 컴포넌트 위에 표시
+    alignItems: 'center',
   },
   correctImage: {
     width: 200,
     height: 200,
+  },
+  correctName: {
+    fontFamily: 'baemin',
+    fontSize: 30,
+    color: 'black',
   },
   tensecModal: {
     position: 'absolute',
@@ -399,6 +460,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     justifyContent: 'center',
     textAlign: 'center',
+  },
+  blackBoxImageProblem: {
+    justifyContent: 'center',
+    width: 150,
+    height: 150,
+    marginTop: 30,
   },
   bottomContainer: {
     flexDirection: 'row',
