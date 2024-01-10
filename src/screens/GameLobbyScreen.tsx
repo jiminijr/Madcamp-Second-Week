@@ -41,7 +41,9 @@ const GameLobbyScreen = () => {
 
   useEffect(() => {
     // 서버에서 사용자 목록을 가져오는 로직 구현
-    socketRef.current = io('http://192.249.30.240:3000/gamelobby');
+    socketRef.current = io(
+      'http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/gamelobby',
+    );
     socketRef.current?.emit('joinRoom', inviteCode, profile);
     if (!start) {
       socketRef.current?.on(

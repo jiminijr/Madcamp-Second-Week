@@ -73,7 +73,9 @@ const DoingGameScreen = () => {
   }));
 
   useEffect(() => {
-    socketRef.current = io('http://192.249.30.240:3000/playgame');
+    socketRef.current = io(
+      'http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/playgame',
+    );
 
     socketRef.current.emit('joinGame', inviteCode);
 

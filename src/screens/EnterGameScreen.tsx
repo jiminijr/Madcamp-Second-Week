@@ -38,7 +38,9 @@ const EnterGameScreen = () => {
 
   useEffect(() => {
     if (!isFirstRender) {
-      const socket = io('http://192.249.30.240:3000/entergame');
+      const socket = io(
+        'http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/entergame',
+      );
       console.log(socket.id);
 
       socket.emit('createRoom', gameTitle, profile);
@@ -81,7 +83,9 @@ const EnterGameScreen = () => {
       ToastAndroid.show('코드를 입력해 주세요.', ToastAndroid.SHORT);
       return;
     }
-    const socket = io('http://192.249.30.240:3000/entergame');
+    const socket = io(
+      'http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/entergame',
+    );
     console.log(socket);
     socket.emit('verifyGame', enteredCode);
     socket.on('verifyGame', status => {

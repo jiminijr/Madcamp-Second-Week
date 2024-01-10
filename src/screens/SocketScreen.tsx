@@ -29,7 +29,9 @@ const SocketScreen = () => {
   //     };
   //   }, []);
 
-  const socket = io(`http://192.249.30.240:3000/gamelobby/`);
+  const socket = io(
+    `http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/gamelobby/`,
+  );
   const create = () => {
     socket.emit('createRoom', 1, id);
     socket.on('createRoom', code => {
