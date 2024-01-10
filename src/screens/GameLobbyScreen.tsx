@@ -36,6 +36,7 @@ const GameLobbyScreen = () => {
   const [gameTitle, setGameTitle] = useState<string>(initialGameTitle);
   const [hostId, setHostId] = useState<number>(-1);
   const [isFirstRender, setIsFirstRender] = useState<boolean>(true);
+  const [start, setStart] = useState<boolean>(false);
   const socketRef = useRef<any>(null);
 
   useEffect(() => {
@@ -43,18 +44,24 @@ const GameLobbyScreen = () => {
     socketRef.current = io('http://192.249.30.65:3000/gamelobby');
     console.log(socketRef.current.id);
     socketRef.current?.emit('joinRoom', inviteCode, profile);
-    socketRef.current?.on(
-      'members',
-      (gameInfo: {users: Profile[]; gameMode: string; hostId: number}) => {
-        console.log(gameInfo);
-        setUsers(gameInfo.users);
-        setGameTitle(gameInfo.gameMode);
-        setHostId(gameInfo.hostId);
-      },
-    );
+    if (!start) {
+      socketRef.current?.on(
+        'members',
+        (gameInfo: {users: Profile[]; gameMode: string; hostId: number}) => {
+          console.log(gameInfo);
+          setUsers(gameInfo.users);
+          setGameTitle(gameInfo.gameMode);
+          setHostId(gameInfo.hostId);
+        },
+      );
+    }
     socketRef.current?.on('changeGame', (gameMode: string) => {
       console.log(gameMode);
       setGameTitle(gameMode);
+    });
+
+    socketRef.current.on('startGame', (start: boolean) => {
+      setStart(start);
     });
 
     const handleBackPress = () => {
@@ -68,6 +75,21 @@ const GameLobbyScreen = () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isFirstRender) {
+      socketRef.current.disconnect();
+      navigation.replace('DoingGame', {
+        profile: profile,
+        token: route.params.token,
+        gameTitle: gameTitle,
+        inviteCode: inviteCode,
+        hostId: hostId,
+        users: users,
+      });
+    }
+    setIsFirstRender(false);
+  }, [start]);
 
   // useEffect(() => {
   //   socket.on('changeGame', gameMode => {
@@ -89,13 +111,8 @@ const GameLobbyScreen = () => {
   const playGame = () => {
     console.log(profile, '플레이게임');
     console.log(gameTitle);
-    navigation.replace('DoingGame', {
-      profile: profile,
-      token: route.params.token,
-      gameTitle: gameTitle,
-      inviteCode: inviteCode,
-      socket: socketRef.current,
-    });
+
+    socketRef.current.emit('startGame', inviteCode);
   };
 
   const selectGame = (value: string) => () => {
