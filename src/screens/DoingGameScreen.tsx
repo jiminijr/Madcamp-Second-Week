@@ -13,6 +13,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
 import {StackScreenProps} from '@react-navigation/stack';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import SoundPlayer from 'react-native-sound-player';
 
 type Props = StackScreenProps<GameStackParamList, 'DoingGame'>;
 
@@ -70,11 +71,16 @@ const DoingGameScreen = () => {
   //   }, 5000);
   let colorChangeTimeout;
   let blinkIntervalId;
+  let bgm;
+
+  const playedCountdownSound = useRef(false);
 
   useEffect(() => {
     if (gameStage === 'gameInstruction') {
+      SoundPlayer.playSoundFile('minho', 'mp3');
       setTimeout(() => {
         setGameStage('countdown');
+        SoundPlayer.playSoundFile('chase1', 'mp3');
       }, 5000);
     } else if (gameStage === 'countdown' && currentCountdownNumber > 0) {
       // 카운트다운 로직
@@ -126,6 +132,7 @@ const DoingGameScreen = () => {
         progressBarAnimation.setValue(0);
         setCurrentProblemIndex(currentProblemIndex + 1);
         settensec(true);
+        SoundPlayer.pause();
       }, 10100);
       return () => {
         // 컴포넌트 언마운트 시 타이머 정리
@@ -137,6 +144,7 @@ const DoingGameScreen = () => {
       gameStage === 'inGame' &&
       currentProblemIndex == selectedProblems.length
     ) {
+      SoundPlayer.playSoundFile('heungbo', 'mp3');
       navigation.replace('EndingGame', {
         gameTitle: gameTitle,
         inviteCode: inviteCode,
@@ -207,8 +215,11 @@ const DoingGameScreen = () => {
 
   useEffect(() => {
     if (tensec) {
+      SoundPlayer.playSoundFile('tthang', 'wav');
+
       setTimeout(() => {
         settensec(false);
+        SoundPlayer.playSoundFile('chase2', 'mp3');
       }, 1000); // 1초 후에 correct를 false로 설정
     }
   }, [tensec]);

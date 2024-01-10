@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import SoundPlayer from 'react-native-sound-player';
 
 const EndingGameScreen = () => {
   return (

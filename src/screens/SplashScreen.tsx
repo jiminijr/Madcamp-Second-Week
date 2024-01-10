@@ -1,8 +1,10 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import FastImage from 'react-native-fast-image';
+import SoundPlayer from 'react-native-sound-player';
 
 const SplashScreen = () => {
+  SoundPlayer.playSoundFile('stalla', 'mp3');
   return (
     <View style={styles.container}>
       <FastImage
