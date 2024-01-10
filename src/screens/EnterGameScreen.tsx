@@ -14,11 +14,12 @@ import {
   View,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
 import FastImage from 'react-native-fast-image';
 import io from 'socket.io-client';
+import SoundPlayer from 'react-native-sound-player';
 
 type Props = StackScreenProps<GameStackParamList, 'EnterGame'>;
 
@@ -32,9 +33,14 @@ const EnterGameScreen = () => {
 
   const navigation = useNavigation<Props['navigation']>();
   const route = useRoute<Props['route']>();
+  const isfocused = useIsFocused();
 
   const profile = route.params.profile;
   console.log(profile);
+
+  // useEffect(() => {
+  //   SoundPlayer.playSoundFile('stalla', 'mp3');
+  // }, [isfocused]);
 
   useEffect(() => {
     if (!isFirstRender) {

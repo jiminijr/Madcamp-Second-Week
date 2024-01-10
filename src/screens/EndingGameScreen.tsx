@@ -13,6 +13,7 @@ import {
 import FastImage from 'react-native-fast-image';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import SoundPlayer from 'react-native-sound-player';
 
 type Props = StackScreenProps<GameStackParamList, 'EndingGame'>;
 
@@ -24,7 +25,13 @@ const EndingGameScreen = () => {
 
   console.log(route.params.users);
 
+  useEffect(() => {
+    SoundPlayer.playSoundFile('heungbo', 'mp3');
+  }, []);
+
   const exit = () => {
+    SoundPlayer.playSoundFile('stalla', 'mp3');
+
     navigation.navigate('EnterGame', {
       profile: route.params.profile,
       token: route.params.token,
@@ -115,16 +122,22 @@ const EndingGameScreen = () => {
             <View>
               {users.map(
                 (user, index) =>
+                  index > 2 &&
                   index % 2 === 1 && (
-                    <Text style={styles.assistText}>{user.nickname}</Text>
+                    <Text style={styles.assistText} key={index}>
+                      {user.nickname}
+                    </Text>
                   ),
               )}
             </View>
             <View>
               {users.map(
                 (user, index) =>
+                  index > 2 &&
                   index % 2 === 0 && (
-                    <Text style={styles.assistText}>{user.nickname}</Text>
+                    <Text style={styles.assistText} key={index}>
+                      {user.nickname}
+                    </Text>
                   ),
               )}
             </View>
@@ -306,10 +319,12 @@ const styles = StyleSheet.create({
   },
   blackBoxText: {
     color: 'white',
+    fontFamily: 'baemin',
     fontSize: 30,
   },
   assistText: {
     color: 'white',
+    fontFamily: 'baemin',
     fontSize: 16,
   },
 });

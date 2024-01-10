@@ -8,6 +8,7 @@ import {
   Text,
   Animated,
   ImageBackground,
+  BackHandler,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {GameStackParamList} from '../navigators/GameStackNavigator';
@@ -15,6 +16,7 @@ import {StackScreenProps} from '@react-navigation/stack';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {Profile} from '../../App';
 import {io} from 'socket.io-client';
+import SoundPlayer from 'react-native-sound-player';
 
 type Props = StackScreenProps<GameStackParamList, 'DoingGame'>;
 
@@ -73,6 +75,7 @@ const DoingGameScreen = () => {
   }));
 
   useEffect(() => {
+    SoundPlayer.playSoundFile('minho', 'mp3');
     socketRef.current = io(
       'http://ec2-43-201-23-42.ap-northeast-2.compute.amazonaws.com:3000/playgame',
     );
@@ -121,6 +124,7 @@ const DoingGameScreen = () => {
         setCurrentProblem(problem);
         left = left - 1;
         setLeftProblem(left);
+        setChat('');
       },
     );
 
@@ -135,13 +139,22 @@ const DoingGameScreen = () => {
         });
       }
     });
+    const handleBackPress = () => {
+      SoundPlayer.playSoundFile('stalla', 'mp3');
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
     return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
       socketRef.current.disconnect();
     };
   }, []);
 
   let colorChangeTimeout: any;
   let blinkIntervalId: any;
+  let playchase1 = true;
 
   useEffect(() => {
     if (gameStage === 'gameInstruction') {
@@ -150,6 +163,10 @@ const DoingGameScreen = () => {
       }, 5000);
     } else if (gameStage === 'countdown' && currentCountdownNumber > 0) {
       // 카운트다운 로직
+      if (playchase1) {
+        SoundPlayer.playSoundFile('chase1', 'mp3');
+        playchase1 = false;
+      }
       const timer = setTimeout(() => {
         setCurrentCountdownNumber(currentCountdownNumber - 1);
         console.log(currentCountdownNumber);
@@ -249,8 +266,10 @@ const DoingGameScreen = () => {
 
   useEffect(() => {
     if (tensec) {
+      SoundPlayer.playSoundFile('tthang', 'wav');
       setTimeout(() => {
         settensec(false);
+        SoundPlayer.playSoundFile('chase2', 'mp3');
       }, 1000); // 1초 후에 correct를 false로 설정
     }
   }, [tensec]);
